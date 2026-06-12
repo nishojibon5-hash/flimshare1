@@ -1,0 +1,6 @@
+{
+  "name": "Filmshare",
+  "description": "A premium dark-themed cross-platform Public OTT application featuring One-Tap Sign In, channel creation, video feed with native ads, direct/remote video upload, DoodStream integration, real-time community chat, subscription system, push notifications, and a complete Creator Monetization Dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
