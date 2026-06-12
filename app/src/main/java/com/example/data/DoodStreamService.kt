@@ -18,7 +18,7 @@ interface DoodStreamService {
     @POST
     suspend fun uploadFileDirect(
         @Url uploadServerUrl: String,
-        @Part("key") apiKey: RequestBody,
+        @Part("api_key") apiKey: RequestBody,
         @Part file: MultipartBody.Part,
         @Part("title") title: RequestBody? = null
     ): Response<DoodUploadResponse>
@@ -31,7 +31,7 @@ interface DoodStreamService {
     ): Response<DoodRemoteResponse>
 
     companion object {
-        private const val BASE_URL = "https://doodapi.com/"
+        private const val BASE_URL = "https://doodapi.co/"
 
         fun create(): DoodStreamService {
             return Retrofit.Builder()

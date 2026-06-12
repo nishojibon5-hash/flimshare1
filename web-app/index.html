@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="bn-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filmshare Web - Secure OTT Streaming Service</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#09090b',
+                        cardBg: '#111115',
+                        brandAccent: '#fbbf24',
+                        brandGreen: '#28542a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <!-- React, ReactDOM, Babel Standalone -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+            color: #f4f4f5;
+        }
+        .space-header {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        /* Custom scrollbar layout styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- React App Implementation -->
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        function App() {
+            // --- STATE MANAGEMENT ---
+            const [backendUrl, setBackendUrl] = useState("");
+            const [doodApiKey, setDoodApiKey] = useState("569719z3isjv0s161g59bk");
+            const [selectedCategory, setSelectedCategory] = useState("All");
+            const [searchQuery, setSearchQuery] = useState("");
+            const [activeScreen, setActiveScreen] = useState("Home"); // Home, Player, Studio, Upload, Profile
+            
+            // Seed base fallback data mirroring mobile
+            const [videos, setVideos] = useState([
+                {
+                    id: "v1",
+                    title: "Exploring Ancient Ruins - Cinematic Trailer",
+                    description: "A visually mesmerizing journey through forgotten histories, historical marvels, and breathtaking wilderness.",
+                    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                    imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=800",
+                    category: "Movies",
+                    views: 4529,
+                    likes: 128,
+                    dislikes: 2,
+                    channelName: "CinemaScope Pro",
+                    channelAvatar: "https://api.dicebear.com/7.x/bottts/svg?seed=CinemaScope",
+                    createdAt: "2026-06-10 14:00:00",
+                    duration: "09:56",
+                    doodFilecode: "fallback_url"
+                },
+                {
+                    id: "v2",
+                    title: "Ultimate 4K Nature & Relaxing Music Drone Video",
+                    description: "Indulge in peaceful atmospheres, stunning forests, roaring ocean streams, and perfect ambient sound escapes.",
+                    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                    imageUrl: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&q=80&w=800",
+                    category: "Music",
+                    views: 94812,
+                    likes: 6734,
+                    dislikes: 18,
+                    channelName: "ZenAmbience Drone",
+                    channelAvatar: "https://api.dicebear.com/7.x/bottts/svg?seed=ZenAmbience",
+                    createdAt: "2026-06-08 09:12:00",
+                    duration: "10:53",
+                    doodFilecode: "fallback_url"
+                },
+                {
+                    id: "v3",
+                    title: "Anime Season Summer 2026 Sneak Peek Preview",
+                    description: "The official guide detailing the best upcoming action, isekai, and romance titles releasing this thrilling quarter.",
+                    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                    imageUrl: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=800",
+                    category: "Anime",
+                    views: 12093,
+                    likes: 1042,
+                    dislikes: 15,
+                    channelName: "OtakuNexus",
+                    channelAvatar: "https://api.dicebear.com/7.x/bottts/svg?seed=OtakuNexus",
+                    createdAt: "2026-06-11 18:45:00",
+                    duration: "15:00",
+                    doodFilecode: "fallback_url"
+                }
+            ]);
+
+            const [selectedVideo, setSelectedVideo] = useState(null);
+            const [comments, setComments] = useState([]);
+            const [newCommentText, setNewCommentText] = useState("");
+            const [subscriberCount, setSubscriberCount] = useState(3410);
+            const [isSubscribed, setIsSubscribed] = useState(false);
+            
+            // Upload states
+            const [uploadTab, setUploadTab] = useState("direct"); // direct or remote
+            const [directFile, setDirectFile] = useState(null);
+            const [remoteUrl, setRemoteUrl] = useState("");
+            const [uploadTitle, setUploadTitle] = useState("");
+            const [isUploading, setIsUploading] = useState(false);
+            const [uploadProgress, setUploadProgress] = useState("");
+            const [notifMessage, setNotifMessage] = useState(null);
+
+            // Channel profile
+            const [channelName, setChannelName] = useState("My Filmshare Studio");
+
+            // --- SYNC WITH API SERVER ---
+            useEffect(() => {
+                if (backendUrl) {
+                    fetchVideos();
+                }
+            }, [backendUrl]);
+
+            const fetchVideos = async () => {
+                try {
+                    const res = await fetch(`${backendUrl}/api/videos`);
+                    const json = await res.json();
+                    if (json.status === "success" && json.data.length > 0) {
+                        setVideos(json.data);
+                        showNotification("API Server synchronized successfully!");
+                    }
+                } catch (err) {
+                    showNotification("Failed to sync with api server. Running in client sandboxMode.", true);
+                }
+            };
+
+            const fetchComments = async (videoId) => {
+                if (!backendUrl) {
+                    // Local comments generator logic
+                    const localCommentMap = {
+                        "v1": [
+                            { id: "c1", username: "AlexHunter", comment: "The production value of this short edit is absolutely insane!", time: "2 hours ago" },
+                            { id: "c2", username: "NatureLover99", comment: "Pure magic. Can't wait to see the full documentary version.", time: "1 hour ago" }
+                        ],
+                        "v2": [
+                            { id: "c3", username: "FocusBeats", comment: "Putting this on loops while studying tonight, cheers!", time: "1 day ago" }
+                        ],
+                        "v3": [
+                            { id: "c4", username: "WeebLord", comment: "Hype levels are exceeding limits! 2026 is an amazing year for anime", time: "10 mins ago" }
+                        ]
+                    };
+                    setComments(localCommentMap[videoId] || []);
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`${backendUrl}/api/comments/${videoId}`);
+                    const json = await res.json();
+                    if (json.status === "success") {
+                        setComments(json.data);
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            };
+
+            // Setup selected video during first load
+            useEffect(() => {
+                if (videos.length > 0 && !selectedVideo) {
+                    setSelectedVideo(videos[0]);
+                }
+            }, [videos]);
+
+            // Fetch comments when selected video updates
+            useEffect(() => {
+                if (selectedVideo) {
+                    fetchComments(selectedVideo.id);
+                }
+            }, [selectedVideo]);
+
+            const showNotification = (msg, isError = false) => {
+                setNotifMessage({ msg, isError });
+                setTimeout(() => setNotifMessage(null), 4000);
+            };
+
+            // --- USER INTERACTION HANDLERS ---
+            const handleAddComment = async (e) => {
+                e.preventDefault();
+                if (!newCommentText.trim()) return;
+
+                const newCommentObj = {
+                    id: "c_" + Date.now(),
+                    username: "WebSurfer_" + Math.floor(Math.random() * 100),
+                    comment: newCommentText,
+                    time: "Just now"
+                };
+
+                if (!backendUrl) {
+                    // Sandbox instant update
+                    setComments([...comments, newCommentObj]);
+                    setNewCommentText("");
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`${backendUrl}/api/comments/${selectedVideo.id}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            username: newCommentObj.username,
+                            comment: newCommentText
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.status === "success") {
+                        setComments([...comments, json.data]);
+                        setNewCommentText("");
+                    }
+                } catch (err) {
+                    showNotification("Sandbox Fallback active - Added locally", false);
+                    setComments([...comments, newCommentObj]);
+                    setNewCommentText("");
+                }
+            };
+
+            const handleVideoUpload = async (e) => {
+                e.preventDefault();
+                if (!uploadTitle.trim()) {
+                    showNotification("অনুগ্রহ করে একটি টাইটেল দিন!", true);
+                    return;
+                }
+
+                setIsUploading(true);
+                setUploadProgress("Filmshare CDN সার্ভারে ভিডিও ট্রান্সফার শুরু হচ্ছে...");
+
+                if (uploadTab === "remote") {
+                    if (!remoteUrl.trim()) {
+                        showNotification("রিমোট URL প্রদান করুন!", true);
+                        setIsUploading(false);
+                        return;
+                    }
+
+                    // Remote URL upload model
+                    if (!backendUrl) {
+                        // Sandbox simulation
+                        setTimeout(() => {
+                            const newVideo = {
+                                id: "v_rem_" + Date.now(),
+                                title: uploadTitle,
+                                description: "Filmshare Cloud Stream processing. API Status: OK",
+                                videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+                                imageUrl: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=800",
+                                category: "Movies",
+                                views: 1,
+                                likes: 0,
+                                dislikes: 0,
+                                channelName: channelName,
+                                channelAvatar: "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(channelName),
+                                createdAt: "2026-06-12 11:00:00",
+                                duration: "Synced",
+                                doodFilecode: "rem_dood_code"
+                            };
+                            setVideos([newVideo, ...videos]);
+                            setSelectedVideo(newVideo);
+                            setIsUploading(false);
+                            setUploadTitle("");
+                            setRemoteUrl("");
+                            setActiveScreen("Home");
+                            showNotification("রিমোট আপলোড সফলভাবে যুক্ত হয়েছে (Sandbox Sim)!");
+                        }, 2000);
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(`${backendUrl}/api/doodstream/upload-remote`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                apiKey: doodApiKey,
+                                url: remoteUrl,
+                                title: uploadTitle
+                            })
+                        });
+                        const json = await res.json();
+                        if (json.status === "success") {
+                            setVideos([json.data, ...videos]);
+                            setSelectedVideo(json.data);
+                            setUploadTitle("");
+                            setRemoteUrl("");
+                            setActiveScreen("Home");
+                            showNotification("রিমোট আপলোড সফল!");
+                        } else {
+                            showNotification("সার্ভার ত্রুটি: " + json.message, true);
+                        }
+                    } catch (e) {
+                        showNotification("সার্ভার সাথে কানেকশন ত্রুটি!", true);
+                    } finally {
+                        setIsUploading(false);
+                    }
+                } else {
+                    // Direct local upload file model
+                    if (!directFile) {
+                        showNotification("ফাইল সিলেক্ট করুন!", true);
+                        setIsUploading(false);
+                        return;
+                    }
+
+                    if (!backendUrl) {
+                        // Sandbox local upload Simulation
+                        let progress = 0;
+                        const interval = setInterval(() => {
+                            progress += 25;
+                            setUploadProgress(`আপলোডিং: ${progress}% সম্পন্ন`);
+                            if (progress >= 100) {
+                                clearInterval(interval);
+                                const newVideo = {
+                                    id: "v_loc_" + Date.now(),
+                                    title: uploadTitle,
+                                    description: `Filmshare Secure Direct Media: ${directFile.name}`,
+                                    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+                                    imageUrl: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800",
+                                    category: "Movies",
+                                    views: 1,
+                                    likes: 0,
+                                    dislikes: 0,
+                                    channelName: channelName,
+                                    channelAvatar: "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(channelName),
+                                    createdAt: "2026-06-12 11:15:00",
+                                    duration: "04:32",
+                                    doodFilecode: "loc_dood_code"
+                                };
+                                setVideos([newVideo, ...videos]);
+                                setSelectedVideo(newVideo);
+                                setIsUploading(false);
+                                setUploadTitle("");
+                                setDirectFile(null);
+                                setActiveScreen("Home");
+                                showNotification("লোকাল ফাইল আপলোড সফল (Sandbox Sim)!");
+                            }
+                        }, 500);
+                        return;
+                    }
+
+                    try {
+                        const formData = new FormData();
+                        formData.append("apiKey", doodApiKey);
+                        formData.append("title", uploadTitle);
+                        formData.append("file", directFile);
+
+                        const res = await fetch(`${backendUrl}/api/doodstream/upload-local`, {
+                            method: "POST",
+                            body: formData
+                        });
+                        const json = await res.json();
+                        if (json.status === "success") {
+                            setVideos([json.data, ...videos]);
+                            setSelectedVideo(json.data);
+                            setUploadTitle("");
+                            setDirectFile(null);
+                            setActiveScreen("Home");
+                            showNotification("সরাসরি ফাইল আপলোড সফল!");
+                        } else {
+                            showNotification("ত্রুটি: " + json.message, true);
+                        }
+                    } catch (e) {
+                        showNotification("আপলোড প্রক্সি সংযোগ ব্যর্থ!", true);
+                    } finally {
+                        setIsUploading(false);
+                    }
+                }
+            };
+
+            // Filter videos based on Search + Category selection
+            const filteredVideos = useMemo(() => {
+                return videos.filter(v => {
+                    const matchesCategory = selectedCategory === "All" || v.category === selectedCategory;
+                    const matchesSearch = v.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                          v.description.toLowerCase().includes(searchQuery.toLowerCase());
+                    return matchesCategory && matchesSearch;
+                });
+            }, [videos, selectedCategory, searchQuery]);
+
+            return (
+                <div className="min-h-screen flex flex-col bg-darkBg text-zinc-100 transition-colors">
+                    
+                    {/* --- SYSTEM BANNER & CONNECTOR CORE --- */}
+                    <header className="bg-zinc-950 border-b border-zinc-800 py-3 px-4 md:px-8">
+                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <span className="material-icons-round text-brandAccent text-3xl">play_circle_filled</span>
+                                <div>
+                                    <h1 className="space-header text-xl font-extrabold tracking-wide text-white">FILMSHARE STUDIO <span className="text-brandAccent text-sm">WEB</span></h1>
+                                    <p className="text-xs text-zinc-400">Filmshare Cloud + Node.JS API Gateway Integration & Dashboard</p>
+                                </div>
+                            </div>
+                            
+                            {/* Server Endpoint Sync Form */}
+                            <div className="flex flex-col sm:flex-row items-stretch gap-2">
+                                <div className="relative flex items-center bg-zinc-900 border border-zinc-700 rounded-md px-2 focus-within:border-brandAccent">
+                                    <span className="material-icons-round text-zinc-400 text-sm mr-1">dns</span>
+                                    <input 
+                                        type="url" 
+                                        placeholder="API Server (e.g. http://localhost:5000)" 
+                                        value={backendUrl}
+                                        onChange={(e) => setBackendUrl(e.target.value)}
+                                        className="bg-transparent py-1 text-xs text-white focus:outline-none w-56 placeholder-zinc-500"
+                                    />
+                                </div>
+                                <div className="relative flex items-center bg-zinc-900 border border-zinc-700 rounded-md px-2 focus-within:border-brandAccent">
+                                    <span className="material-icons-round text-brandAccent text-sm mr-1">key_off</span>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Filmshare Access Key" 
+                                        value={doodApiKey}
+                                        onChange={(e) => setDoodApiKey(e.target.value)}
+                                        className="bg-transparent py-1 text-xs text-white focus:outline-none w-44 placeholder-zinc-500"
+                                    />
+                                </div>
+                                <button 
+                                    onClick={fetchVideos}
+                                    className="bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-900 px-3 py-1 text-xs text-zinc-200 border border-zinc-700 rounded-md flex items-center gap-1 transition"
+                                >
+                                    <span className="material-icons-round text-sm">sync</span> Sync
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* --- NOTIFICATION FLOATER --- */}
+                    {notifMessage && (
+                        <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-2xl transition duration-300 ${notifMessage.isError ? 'bg-red-950 border border-red-800 text-red-200' : 'bg-zinc-900 border border-brandAccent text-zinc-100'}`}>
+                            <span className="material-icons-round text-lg text-brandAccent">
+                                {notifMessage.isError ? 'error_outline' : 'check_circle_outline'}
+                            </span>
+                            <span className="text-sm font-medium">{notifMessage.msg}</span>
+                        </div>
+                    )}
+
+                    {/* --- MAIN NAVIGATION MATRIX --- */}
+                    <div className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-6 flex flex-col md:flex-row gap-8">
+                        
+                        {/* Sidebar */}
+                        <aside className="md:w-64 flex flex-row md:flex-col gap-1 md:gap-2 overflow-x-auto md:overflow-visible shrink-0 pb-3 md:pb-0 border-b md:border-b-0 md:border-r border-zinc-800 md:pr-4">
+                            <button 
+                                onClick={() => { setActiveScreen("Home"); setSelectedCategory("All"); }}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${activeScreen === "Home" ? 'bg-zinc-800 text-brandAccent border-l-4 border-brandAccent' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'}`}
+                            >
+                                <span className="material-icons-round text-base">explore</span> Discover Feed
+                            </button>
+                            <button 
+                                onClick={() => setActiveScreen("Upload")}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${activeScreen === "Upload" ? 'bg-zinc-800 text-brandAccent border-l-4 border-brandAccent' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'}`}
+                            >
+                                <span className="material-icons-round text-base">cloud_upload</span> Upload Control
+                            </button>
+                            <button 
+                                onClick={() => setActiveScreen("Studio")}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${activeScreen === "Studio" ? 'bg-zinc-800 text-brandAccent border-l-4 border-brandAccent' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'}`}
+                            >
+                                <span className="material-icons-round text-base">analytics</span> Creator Dashboard
+                            </button>
+                            <button 
+                                onClick={() => setActiveScreen("Profile")}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${activeScreen === "Profile" ? 'bg-zinc-800 text-brandAccent border-l-4 border-brandAccent' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'}`}
+                            >
+                                <span className="material-icons-round text-base">account_circle</span> Studio Settings
+                            </button>
+                        </aside>
+
+                        {/* Screen Content Engine */}
+                        <main className="flex-1 min-w-0">
+                            
+                            {/* --- SCREEN 1: AUDIO VISUAL PLAYBACK GRID (HOME) --- */}
+                            {activeScreen === "Home" && (
+                                <div>
+                                    {/* Search Bar / Filters */}
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+                                        <div className="relative flex-1 max-w-md">
+                                            <span className="material-icons-round absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">search</span>
+                                            <input 
+                                                type="text" 
+                                                placeholder="কীওয়ার্ড দিয়ে অনুসন্ধান করুন..." 
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-brandAccent placeholder-zinc-500 font-medium"
+                                            />
+                                        </div>
+
+                                        {/* Category pills */}
+                                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 select-none">
+                                            {["All", "Movies", "Anime", "Music"].map((genre) => (
+                                                <button
+                                                    key={genre}
+                                                    onClick={() => setSelectedCategory(genre)}
+                                                    className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition shrink-0 ${selectedCategory === genre ? 'bg-brandAccent text-zinc-950 shadow-md shadow-brandAccent/10' : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:bg-zinc-800'}`}
+                                                >
+                                                    {genre}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Display Heading */}
+                                    <h2 className="space-header text-xl font-bold tracking-wide text-white mb-6 uppercase border-b border-zinc-800 pb-2 flex items-center gap-2">
+                                        <span className="material-icons-round text-brandAccent">live_tv</span> {selectedCategory} Videos 
+                                        <span className="text-xs text-zinc-400 lowercase font-normal ml-1">({filteredVideos.length} matches discovered)</span>
+                                    </h2>
+
+                                    {/* Video Grid */}
+                                    {filteredVideos.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center py-20 bg-zinc-900/40 rounded-2xl border border-zinc-800 text-center">
+                                            <span className="material-icons-round text-5xl text-zinc-600 mb-3">ondemand_video</span>
+                                            <p className="text-zinc-300 font-medium">কোনো ভিডিও পাওয়া যায়নি!</p>
+                                            <p className="text-xs text-zinc-500 mt-1">অনুগ্রহ করে ভিন্ন কোনো শব্দ বা ক্যাটাগরি ট্রাই করুন।</p>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {filteredVideos.map((video) => (
+                                                <div 
+                                                    key={video.id} 
+                                                    onClick={() => { setSelectedVideo(video); setActiveScreen("Player"); }}
+                                                    className="group bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 cursor-pointer shadow-xl transition-all duration-300 hover:-translate-y-1"
+                                                >
+                                                    {/* Video Thumbnail */}
+                                                    <div className="relative aspect-video bg-zinc-950 overflow-hidden">
+                                                        <img 
+                                                            src={video.imageUrl} 
+                                                            alt={video.title} 
+                                                            className="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+                                                        />
+                                                        {/* Duration Badge */}
+                                                        <div className="absolute bottom-2.5 right-2.5 bg-black/80 px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider text-zinc-200">
+                                                            {video.duration}
+                                                        </div>
+                                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-300">
+                                                            <div className="bg-brandAccent text-zinc-950 p-2.5 rounded-full shadow-lg">
+                                                                <span className="material-icons-round text-xl block">play_arrow</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Video Info Detail */}
+                                                    <div className="p-4">
+                                                        <div className="flex gap-3">
+                                                            <img 
+                                                                src={video.channelAvatar} 
+                                                                alt={video.channelName} 
+                                                                className="w-9 h-9 rounded-full bg-zinc-800 shrink-0 border border-zinc-700" 
+                                                            />
+                                                            <div className="min-w-0 flex-1">
+                                                                <h3 className="line-clamp-2 text-sm font-bold text-white group-hover:text-brandAccent transition leading-snug">
+                                                                    {video.title}
+                                                                </h3>
+                                                                <p className="text-xs text-zinc-400 mt-1.5 font-semibold flex items-center gap-1">
+                                                                    {video.channelName}
+                                                                    <span className="material-icons-round text-brandAccent text-xs">verified</span>
+                                                                </p>
+                                                                <div className="flex items-center gap-2 mt-1 text-[11px] text-zinc-500 font-medium">
+                                                                    <span>{video.views.toLocaleString()} views</span>
+                                                                    <span>•</span>
+                                                                    <span>{video.createdAt.substring(0, 10)}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* --- SCREEN 2: HIGH-FIDELITY ACTIVE VIDEO RUNTIME (PLAYER) --- */}
+                            {activeScreen === "Player" && selectedVideo && (
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    
+                                    {/* Main Player + description */}
+                                    <div className="lg:col-span-2">
+                                        <div className="aspect-video bg-black rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl relative">
+                                            {/* Smart check to render real Filmshare embed or fall back into standard HTML5 Player */}
+                                            {selectedVideo.doodFilecode && selectedVideo.doodFilecode !== "fallback_url" ? (
+                                                <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-950 relative">
+                                                    <iframe 
+                                                        src={`https://doodstream.com/e/${selectedVideo.doodFilecode}`} 
+                                                        className="w-full h-full absolute inset-0 border-0" 
+                                                        scrolling="no" 
+                                                        allowFullScreen
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <video 
+                                                    src={selectedVideo.videoUrl} 
+                                                    controls 
+                                                    poster={selectedVideo.imageUrl}
+                                                    className="w-full h-full object-contain"
+                                                />
+                                            )}
+                                        </div>
+
+                                        {/* Title Info block */}
+                                        <div className="mt-4">
+                                            <h2 className="text-lg md:text-xl font-extrabold text-white leading-snug">{selectedVideo.title}</h2>
+                                            
+                                            {/* Interactions details */}
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800 py-3.5 mt-2">
+                                                <p className="text-xs text-zinc-400 font-semibold">{selectedVideo.views.toLocaleString()} views • {selectedVideo.createdAt}</p>
+                                                
+                                                <div className="flex items-center gap-2">
+                                                    {/* Like Button */}
+                                                    <button className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition">
+                                                        <span className="material-icons-round text-sm">thumb_up</span> {selectedVideo.likes + (isSubscribed ? 1 : 0)}
+                                                    </button>
+                                                    <button className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition">
+                                                        <span className="material-icons-round text-sm">thumb_down</span> {selectedVideo.dislikes}
+                                                    </button>
+                                                    <button className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition">
+                                                        <span className="material-icons-round text-sm">share</span> Share
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Channel details block */}
+                                            <div className="flex items-center justify-between py-4 border-b border-zinc-800">
+                                                <div className="flex items-center gap-3">
+                                                    <img 
+                                                        src={selectedVideo.channelAvatar} 
+                                                        alt={selectedVideo.channelName} 
+                                                        className="w-11 h-11 rounded-full bg-zinc-800 border border-zinc-700 shrink-0" 
+                                                    />
+                                                    <div>
+                                                        <h4 className="text-sm font-bold text-white flex items-center gap-1">
+                                                            {selectedVideo.channelName}
+                                                            <span className="material-icons-round text-brandAccent text-sm">verified</span>
+                                                        </h4>
+                                                        <p className="text-[11px] text-zinc-400 font-medium">{(subscriberCount + (isSubscribed ? 1 : 0)).toLocaleString()} subscribers</p>
+                                                    </div>
+                                                </div>
+
+                                                <button 
+                                                    onClick={() => setIsSubscribed(!isSubscribed)}
+                                                    className={`px-5 py-2 rounded-full text-xs font-bold tracking-wide transition ${isSubscribed ? 'bg-zinc-850 hover:bg-red-950 border border-red-900 text-red-200' : 'bg-brandAccent text-zinc-950 hover:opacity-90'}`}
+                                                >
+                                                    {isSubscribed ? "SUBSCRIBED" : "SUBSCRIBE"}
+                                                </button>
+                                            </div>
+
+                                            {/* Video Narrative description */}
+                                            <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl mt-4">
+                                                <p className="text-xs font-semibold text-zinc-400">Description</p>
+                                                <p className="text-xs md:text-sm text-zinc-300 mt-2 whitespace-pre-line leading-relaxed">{selectedVideo.description}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Sidebar / Live chat commentary community panels */}
+                                    <div>
+                                        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col h-[520px]">
+                                            <div className="border-b border-zinc-800 pb-3 flex items-center justify-between">
+                                                <h3 className="space-header text-sm font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
+                                                    <span className="material-icons-round text-brandAccent text-base animate-pulse">forum</span> Community Live Chat
+                                                </h3>
+                                                <span className="bg-[#1c381c] text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-800 uppercase tracking-widest text-right">ACTIVE</span>
+                                            </div>
+
+                                            {/* Chat log visualizer */}
+                                            <div className="flex-1 overflow-y-auto space-y-3.5 my-4 pr-1">
+                                                {comments.length === 0 ? (
+                                                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                                                        <span className="material-icons-round text-2xl text-zinc-700 animate-bounce">sms</span>
+                                                        <p className="text-[11px] text-zinc-500 font-medium mt-1">লাইভ চ্যাট শান্ত আছে। প্রথম মেসেজটি আপনার হোক!</p>
+                                                    </div>
+                                                ) : (
+                                                    comments.map((c) => (
+                                                        <div key={c.id} className="text-xs flex items-start gap-2.5">
+                                                            <div className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-zinc-400 border border-zinc-700 shrink-0 text-[10px]">
+                                                                {c.username.charAt(0)}
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="font-bold text-zinc-300">{c.username}</span>
+                                                                    <span className="text-[9px] text-zinc-500">{c.time}</span>
+                                                                </div>
+                                                                <p className="text-zinc-200 mt-0.5 leading-normal">{c.comment}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+
+                                            {/* Dispatch chat container */}
+                                            <form onSubmit={handleAddComment} className="flex gap-2">
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="লাইভ চ্যাটে অংশ নিন..." 
+                                                    value={newCommentText}
+                                                    onChange={(e) => setNewCommentText(e.target.value)}
+                                                    className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-brandAccent placeholder-zinc-600"
+                                                />
+                                                <button 
+                                                    type="submit" 
+                                                    className="bg-brandAccent hover:opacity-90 active:scale-95 text-zinc-950 px-3 rounded-xl flex items-center justify-center transition"
+                                                >
+                                                    <span className="material-icons-round text-base">send</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            )}
+
+                            {/* --- SCREEN 3: STREAM STUDIO & UPLOAD PANEL (UPLOAD) --- */}
+                            {activeScreen === "Upload" && (
+                                <div className="max-w-2xl mx-auto bg-zinc-900 border border-zinc-800 p-6 md:p-8 rounded-2xl shadow-2xl">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <span className="material-icons-round text-brandAccent text-3xl">upload_file</span>
+                                        <div>
+                                            <h2 className="space-header text-xl font-bold text-white uppercase tracking-wider">Stream Upload Engine</h2>
+                                            <p className="text-xs text-zinc-400">Upload direct local clips or import remote links directly into Filmshare CDN</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Tab headers */}
+                                    <div className="flex border-b border-zinc-800 mb-6 bg-zinc-950 p-1.5 rounded-xl border border-zinc-900">
+                                        <button 
+                                            onClick={() => setUploadTab("direct")}
+                                            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition ${uploadTab === "direct" ? 'bg-zinc-800 text-brandAccent shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                        >
+                                            Direct Upload
+                                        </button>
+                                        <button 
+                                            onClick={() => setUploadTab("remote")}
+                                            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition ${uploadTab === "remote" ? 'bg-zinc-800 text-brandAccent shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                        >
+                                            Remote URL Import
+                                        </button>
+                                    </div>
+
+                                    {/* Upload form */}
+                                    {isUploading ? (
+                                        <div className="py-12 text-center">
+                                            <div className="w-12 h-12 border-4 border-zinc-800 border-t-brandAccent rounded-full animate-spin mx-auto mb-4"></div>
+                                            <p className="text-sm text-zinc-100 font-bold tracking-wide">{uploadProgress}</p>
+                                            <p className="text-xs text-zinc-500 mt-1">প্রসেস চলাকালীন অনুগ্রহ করে ব্রাউজার ক্লোজ করবেন না।</p>
+                                        </div>
+                                    ) : (
+                                        <form onSubmit={handleVideoUpload} className="space-y-5">
+                                            <div>
+                                                <label className="block text-xs font-extrabold uppercase tracking-widest text-zinc-400 mb-1.5">Video Title *</label>
+                                                <input 
+                                                    type="text" 
+                                                    required
+                                                    placeholder="যেমন: Action Anime Epic Scene (2026)" 
+                                                    value={uploadTitle}
+                                                    onChange={(e) => setUploadTitle(e.target.value)}
+                                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandAccent placeholder-zinc-700"
+                                                />
+                                            </div>
+
+                                            {uploadTab === "remote" ? (
+                                                <div>
+                                                    <label className="block text-xs font-extrabold uppercase tracking-widest text-zinc-400 mb-1.5">Remote Direct Url *</label>
+                                                    <input 
+                                                        type="url" 
+                                                        required
+                                                        placeholder="যেমন: https://host.com/files/anime_movie.mp4" 
+                                                        value={remoteUrl}
+                                                        onChange={(e) => setRemoteUrl(e.target.value)}
+                                                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandAccent placeholder-zinc-700"
+                                                    />
+                                                    <p className="text-[10px] text-zinc-500 mt-1 font-semibold">Filmshare allows remote uploading of direct downloadable mp4 paths safely.</p>
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                    <label className="block text-xs font-extrabold uppercase tracking-widest text-zinc-400 mb-1.5">Select MP4 Video File *</label>
+                                                    <div className="border border-dashed border-zinc-800 hover:border-brandAccent transition bg-zinc-950 p-6 rounded-2xl text-center relative cursor-pointer">
+                                                        <input 
+                                                            type="file" 
+                                                            accept="video/*"
+                                                            onChange={(e) => setDirectFile(e.target.files[0])}
+                                                            className="absolute inset-0 opacity-0 cursor-pointer"
+                                                        />
+                                                        <span className="material-icons-round text-3xl text-zinc-600 block mb-2">cloud_upload</span>
+                                                        <p className="text-xs text-zinc-300 font-semibold">{directFile ? directFile.name : "ক্লিক করে আপনার ফাইল সিলেক্ট করুন"}</p>
+                                                        <p className="text-[10px] text-zinc-500 mt-1 font-medium">MP4, WebM formats supported (Max size allowed: 50MB for proxy sandbox)</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <button 
+                                                type="submit"
+                                                className="w-full bg-brandAccent hover:opacity-90 text-zinc-950 py-3 rounded-xl font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition"
+                                            >
+                                                <span className="material-icons-round text-base">cloud_done</span> Execute Stream Upload
+                                            </button>
+                                        </form>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* --- SCREEN 4: CREATOR DASHBOARD SYNCHRONIZER (STUDIO) --- */}
+                            {activeScreen === "Studio" && (
+                                <div className="space-y-6">
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800 pb-4">
+                                        <div>
+                                            <h2 className="space-header text-xl font-extrabold tracking-wider text-white uppercase">{channelName} Creator Studio</h2>
+                                            <p className="text-xs text-zinc-400">Analyze views growth, Filmshare referral traffic, and live CPM metrics.</p>
+                                        </div>
+                                        <div className="bg-[#1c381c] border border-emerald-800 text-emerald-400 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase">
+                                            CPM Status: Active
+                                        </div>
+                                    </div>
+
+                                    {/* Stats grid */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
+                                            <div className="flex justify-between items-start text-zinc-500 mb-2">
+                                                <span className="text-[11px] font-bold uppercase tracking-wider">Subscribers</span>
+                                                <span className="material-icons-round text-brandAccent text-lg">groups</span>
+                                            </div>
+                                            <p className="text-2xl font-extrabold text-white">{(subscriberCount + (isSubscribed ? 1 : 0)).toLocaleString()}</p>
+                                            <p className="text-[10px] text-green-400 mt-1.5 font-bold flex items-center gap-1">
+                                                <span className="material-icons-round text-xs">trending_up</span> +3.12% This month
+                                            </p>
+                                        </div>
+                                        <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
+                                            <div className="flex justify-between items-start text-zinc-500 mb-2">
+                                                <span className="text-[11px] font-bold uppercase tracking-wider">Estimated Views</span>
+                                                <span className="material-icons-round text-blue-400 text-lg">visibility</span>
+                                            </div>
+                                            <p className="text-2xl font-extrabold text-white">{(videos.reduce((acc, v) => acc + v.views, 0)).toLocaleString()}</p>
+                                            <p className="text-[10px] text-zinc-500 mt-1.5 font-bold">Aggregate total from play records</p>
+                                        </div>
+                                        <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
+                                            <div className="flex justify-between items-start text-zinc-500 mb-2">
+                                                <span className="text-[11px] font-bold uppercase tracking-wider">Watch Hours</span>
+                                                <span className="material-icons-round text-amber-400 text-lg">schedule</span>
+                                            </div>
+                                            <p className="text-2xl font-extrabold text-white">1,540h</p>
+                                            <p className="text-[10px] text-green-400 mt-1.5 font-bold flex items-center gap-1">
+                                                <span className="material-icons-round text-xs">trending_up</span> +14.2% Growth
+                                            </p>
+                                        </div>
+                                        <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
+                                            <div className="flex justify-between items-start text-zinc-500 mb-2">
+                                                <span className="text-[11px] font-bold uppercase tracking-wider">CPM Earnings / Share</span>
+                                                <span className="material-icons-round text-green-400 text-lg">monetization_on</span>
+                                            </div>
+                                            <p className="text-2xl font-extrabold text-[#22c55e]">$318.90</p>
+                                            <p className="text-[10px] text-zinc-500 mt-1.5 font-bold">Referral traffic revenue estimation</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Visual graphs */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                        {/* Subscriber growth SVG graph */}
+                                        <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl lg:col-span-2">
+                                            <h3 className="space-header text-sm font-bold text-white uppercase mb-4 tracking-wider">Subscribers Growth Scale</h3>
+                                            <div className="h-56 w-full flex items-end justify-between relative mt-4">
+                                                {/* Simulated custom SVG line chart */}
+                                                <svg className="absolute inset-0 w-full h-full" overflow="visible">
+                                                    <path 
+                                                        d="M0,180 Q80,120 160,110 T320,60 T480,42 T640,12" 
+                                                        fill="none" 
+                                                        stroke="#fbbf24" 
+                                                        strokeWidth="3.5"
+                                                        strokeLinecap="round"
+                                                    />
+                                                    <path 
+                                                        d="M0,180 Q80,120 160,110 T320,60 T480,42 T640,12 L640,220 L0,220 Z" 
+                                                        fill="url(#grad)" 
+                                                        opacity="0.08"
+                                                    />
+                                                    <defs>
+                                                        <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                            <stop offset="0%" stopColor="#fbbf24" />
+                                                            <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
+                                                        </linearGradient>
+                                                    </defs>
+                                                </svg>
+                                                <div className="text-[10px] text-zinc-500 absolute bottom-1 left-2">May 15</div>
+                                                <div className="text-[10px] text-zinc-500 absolute bottom-1 right-2">Today</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Category mix */}
+                                        <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
+                                            <h3 className="space-header text-sm font-bold text-white uppercase mb-4 tracking-wider">Content Distribution</h3>
+                                            <div className="space-y-4 py-2">
+                                                <div>
+                                                    <div className="flex justify-between text-xs text-zinc-400 mb-1">
+                                                        <span>Anime</span>
+                                                        <span>45%</span>
+                                                    </div>
+                                                    <div className="w-full bg-zinc-950 h-2 rounded-full overflow-hidden">
+                                                        <div className="bg-brandAccent h-full rounded-full" style={{ width: "45%" }}></div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className="flex justify-between text-xs text-zinc-400 mb-1">
+                                                        <span>Movies</span>
+                                                        <span>30%</span>
+                                                    </div>
+                                                    <div className="w-full bg-zinc-950 h-2 rounded-full overflow-hidden">
+                                                        <div className="bg-red-400 h-full rounded-full" style={{ width: "30%" }}></div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className="flex justify-between text-xs text-zinc-400 mb-1">
+                                                        <span>Music</span>
+                                                        <span>25%</span>
+                                                    </div>
+                                                    <div className="w-full bg-zinc-950 h-2 rounded-full overflow-hidden">
+                                                        <div className="bg-emerald-400 h-full rounded-full" style={{ width: "25%" }}></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* --- SCREEN 5: STUDIO PROFILE SETTINGS (PROFILE) --- */}
+                            {activeScreen === "Profile" && (
+                                <div className="max-w-xl mx-auto bg-zinc-900 border border-zinc-800 p-6 md:p-8 rounded-2xl shadow-2xl">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <span className="material-icons-round text-brandAccent text-3xl">badge</span>
+                                        <div>
+                                            <h2 className="space-header text-xl font-bold text-white uppercase tracking-wider">Studio Configuration</h2>
+                                            <p className="text-xs text-zinc-400">Configure public display identifiers and API connection keys</p>
+                                        </div>
+                                    </div>
+
+                                    <form onSubmit={(e) => { e.preventDefault(); showNotification("Studio records updated cleanly!"); }} className="space-y-5">
+                                        <div>
+                                            <label className="block text-xs font-extrabold uppercase tracking-widest text-zinc-400 mb-1.5">Studio Display Name</label>
+                                            <input 
+                                                type="text" 
+                                                value={channelName}
+                                                onChange={(e) => setChannelName(e.target.value)}
+                                                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandAccent"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-extrabold uppercase tracking-widest text-zinc-400 mb-1.5">Avatar Verification Stamp</label>
+                                            <div className="flex items-center gap-4">
+                                                <img 
+                                                    src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(channelName)}`} 
+                                                    alt="Avatar seed" 
+                                                    className="w-16 h-16 rounded-2xl bg-zinc-950 border border-zinc-800 p-1" 
+                                                />
+                                                <div className="text-[10px] text-zinc-500 font-medium">
+                                                    Avatar is automatically unique-generated basing your channel Name seed values.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t border-zinc-800 pt-4">
+                                            <button 
+                                                type="submit"
+                                                className="bg-[#28542a] hover:bg-emerald-900 text-emerald-200 px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition"
+                                            >
+                                                Save Studio Profile
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+
+                        </main>
+                    </div>
+
+                    {/* Footer */}
+                    <footer className="mt-auto bg-zinc-950 border-t border-zinc-800 py-6 text-center text-xs text-zinc-500 font-semibold uppercase tracking-wider">
+                        Filmshare Hub • Copyright © 2026 • Powered by Google AI Studio
+                    </footer>
+
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
