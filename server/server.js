@@ -94,9 +94,9 @@ const db = {
     },
     channels: {
         "user123": {
-            channelName: "My Filmshare Studio",
+            channelName: "My Flimshare Studio",
             subscribers: 3410,
-            avatarUrl: "https://api.dicebear.com/7.x/bottts/svg?seed=MyFilmshare",
+            avatarUrl: "https://api.dicebear.com/7.x/bottts/svg?seed=MyFlimshare",
             viewsCount: 15729,
             watchHours: 1240,
             estimatedEarnings: 312.50
@@ -172,7 +172,7 @@ app.post('/api/channels/:userId', (req, res) => {
 });
 
 
-// --- FILM SHARE INTEGRATION & PROXY ACTIONS ---
+// --- FLIM SHARE INTEGRATION & PROXY ACTIONS ---
 
 // Local upload proxy: Fetches upload server first and then executes multipart direct upload
 app.post('/api/doodstream/upload-local', upload.single('file'), async (req, res) => {
@@ -180,14 +180,14 @@ app.post('/api/doodstream/upload-local', upload.single('file'), async (req, res)
     const title = req.body.title || (req.file ? req.file.originalname : "Uploaded Video");
 
     if (!apiKey) {
-        return res.status(400).json({ status: "error", message: "Filmshare CDN Security Key is required" });
+        return res.status(400).json({ status: "error", message: "Flimshare CDN Security Key is required" });
     }
     if (!req.file) {
         return res.status(400).json({ status: "error", message: "Physical video file is required for local upload" });
     }
 
     try {
-        console.log(`[Filmshare Proxy] Initiating local upload. Acquiring server URL...`);
+        console.log(`[Flimshare Proxy] Initiating local upload. Acquiring server URL...`);
         // Step 1: Get the upload server
         const serverUrlResp = await fetch(`https://doodapi.co/api/upload/server?key=${apiKey}`);
         const serverUrlData = await serverUrlResp.json();
@@ -197,7 +197,7 @@ app.post('/api/doodstream/upload-local', upload.single('file'), async (req, res)
         }
 
         const uploadServerUrl = serverUrlData.result;
-        console.log(`[Filmshare Proxy] Server URL secured: ${uploadServerUrl}. Dispatching file payload...`);
+        console.log(`[Flimshare Proxy] Server URL secured: ${uploadServerUrl}. Dispatching file payload...`);
 
         // Step 2: Upload file via FormData using node-fetch stream
         const FormData = require('form-data');
@@ -224,15 +224,15 @@ app.post('/api/doodstream/upload-local', upload.single('file'), async (req, res)
         const newVideoObj = {
             id: "v_" + Date.now(),
             title: title,
-            description: `Successfully uploaded directly into Filmshare CDN! Secure Video ID: ${details.filecode}`,
+            description: `Successfully uploaded directly into Flimshare CDN! Secure Video ID: ${details.filecode}`,
             videoUrl: details.download_url || `https://doodstream.com/e/${details.filecode}`,
             imageUrl: details.splash_img || details.single_img || "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=800",
             category: "Movies",
             views: 1,
             likes: 0,
             dislikes: 0,
-            channelName: "Filmshare Dashboard",
-            channelAvatar: "https://api.dicebear.com/7.x/bottts/svg?seed=FilmshareLogo",
+            channelName: "Flimshare Dashboard",
+            channelAvatar: "https://api.dicebear.com/7.x/bottts/svg?seed=FlimshareLogo",
             createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
             duration: "Dynamic",
             doodFilecode: details.filecode
@@ -245,12 +245,12 @@ app.post('/api/doodstream/upload-local', upload.single('file'), async (req, res)
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path); // safety fallback
         }
-        console.error('[Filmshare Proxy Error]', err);
+        console.error('[Flimshare Proxy Error]', err);
         res.status(500).json({ status: "error", message: err.message || "Internal server proxy error" });
     }
 });
 
-// Remote Upload proxy: Adds URL to Filmshare Remote queue
+// Remote Upload proxy: Adds URL to Flimshare Remote queue
 app.post('/api/doodstream/upload-remote', async (req, res) => {
     const { apiKey, url, title } = req.body;
 
@@ -259,7 +259,7 @@ app.post('/api/doodstream/upload-remote', async (req, res) => {
     }
 
     try {
-        console.log(`[Filmshare Proxy] Directing remote upload for URL: ${url}`);
+        console.log(`[Flimshare Proxy] Directing remote upload for URL: ${url}`);
         
         let targetUrl = `https://doodapi.co/api/upload/url?key=${apiKey}&url=${encodeURIComponent(url)}`;
         if (title) {
@@ -276,7 +276,7 @@ app.post('/api/doodstream/upload-remote', async (req, res) => {
         const newVideoObj = {
             id: "v_" + Date.now(),
             title: title || "Imported Remote Video",
-            description: `Remote upload queue accepted by Filmshare Media Core. System Queue Status: OK`,
+            description: `Remote upload queue accepted by Flimshare Media Core. System Queue Status: OK`,
             videoUrl: `https://doodstream.com/e/${remoteData.result.filecode}`,
             imageUrl: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=800",
             category: "Movies",
@@ -301,10 +301,10 @@ app.post('/api/doodstream/upload-remote', async (req, res) => {
 
 // Default status probe
 app.get('/', (req, res) => {
-    res.send('<h2>Filmshare API Server is operational & syncing cleanly with high-speed CDN nodes!</h2>');
+    res.send('<h2>Flimshare API Server is operational & syncing cleanly with high-speed CDN nodes!</h2>');
 });
 
 // Start Server
 app.listen(PORT, () => {
-    console.log(`🚀 Filmshare backend running at: http://localhost:${PORT}`);
+    console.log(`🚀 Flimshare backend running at: http://localhost:${PORT}`);
 });

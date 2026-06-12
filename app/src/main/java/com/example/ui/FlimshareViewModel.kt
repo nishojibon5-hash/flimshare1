@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
 
-class FilmshareViewModel(application: Application) : AndroidViewModel(application) {
+class FlimshareViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = AppDatabase.getDatabase(application)
     private val service = DoodStreamService.create()
-    private val repository = FilmshareRepository(application, db, service)
+    private val repository = FlimshareRepository(application, db, service)
     
     // Auth & Active User State
     val userState: StateFlow<UserEntity?> = repository.getActiveUserFlow()

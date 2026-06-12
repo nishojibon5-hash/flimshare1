@@ -32,7 +32,7 @@ import com.example.data.VideoEntity
 
 @Composable
 fun DiscoverScreen(
-    viewModel: FilmshareViewModel,
+    viewModel: FlimshareViewModel,
     modifier: Modifier = Modifier
 ) {
     val videos by viewModel.videoFeedState.collectAsState()
@@ -124,7 +124,7 @@ fun DiscoverScreen(
 
 @Composable
 fun VideoPlayerScreen(
-    viewModel: FilmshareViewModel,
+    viewModel: FlimshareViewModel,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

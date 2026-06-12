@@ -21,7 +21,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.util.UUID
 
-class FilmshareRepository(
+class FlimshareRepository(
     private val context: Context,
     private val database: AppDatabase,
     private val doodService: DoodStreamService
@@ -217,10 +217,10 @@ class FilmshareRepository(
                 if (serverResp.isSuccessful) {
                     val serverBody = serverResp.body()
                     if (serverBody == null) {
-                        throw Exception("Filmshare upload server response body is null")
+                        throw Exception("Flimshare upload server response body is null")
                     }
                     if (serverBody.status != 200) {
-                        throw Exception("Filmshare server error: ${serverBody.msg}")
+                        throw Exception("Flimshare server error: ${serverBody.msg}")
                     }
                     val serverUrl = serverBody.result ?: "https://doodapi.co/"
                     
@@ -233,22 +233,22 @@ class FilmshareRepository(
                     if (uploadResp.isSuccessful) {
                         val uploadBody = uploadResp.body()
                         if (uploadBody == null) {
-                            throw Exception("Filmshare file upload response body is null")
+                            throw Exception("Flimshare file upload response body is null")
                         }
                         if (uploadBody.status != 200) {
-                            throw Exception("Filmshare file upload error: ${uploadBody.msg}")
+                            throw Exception("Flimshare file upload error: ${uploadBody.msg}")
                         }
                         val firstResult = uploadBody.result?.firstOrNull()
                         if (firstResult != null) {
                             firstResult.download_url
                         } else {
-                            throw Exception("Filmshare file upload returned empty results list")
+                            throw Exception("Flimshare file upload returned empty results list")
                         }
                     } else {
-                        throw Exception("Filmshare direct upload failed with HTTP code ${uploadResp.code()}")
+                        throw Exception("Flimshare direct upload failed with HTTP code ${uploadResp.code()}")
                     }
                 } else {
-                    throw Exception("Failed to contact Filmshare upload server with HTTP code ${serverResp.code()}")
+                    throw Exception("Failed to contact Flimshare upload server with HTTP code ${serverResp.code()}")
                 }
             } else {
                 // Return high-fidelity fallback playback source for offline testing
@@ -306,19 +306,19 @@ class FilmshareRepository(
                 if (resp.isSuccessful) {
                     val respBody = resp.body()
                     if (respBody == null) {
-                        throw Exception("Filmshare remote upload response body is null")
+                        throw Exception("Flimshare remote upload response body is null")
                     }
                     if (respBody.status != 200) {
-                        throw Exception("Filmshare remote upload error: ${respBody.msg}")
+                        throw Exception("Flimshare remote upload error: ${respBody.msg}")
                     }
                     val code = respBody.result?.filecode
                     if (code != null) {
                         videoUrl = "https://doodstream.com/e/$code"
                     } else {
-                        throw Exception("Filmshare remote upload did not return a valid filecode")
+                        throw Exception("Flimshare remote upload did not return a valid filecode")
                     }
                 } else {
-                    throw Exception("Filmshare remote upload failed with HTTP code ${resp.code()}")
+                    throw Exception("Flimshare remote upload failed with HTTP code ${resp.code()}")
                 }
             }
 
@@ -342,7 +342,7 @@ class FilmshareRepository(
             // Dynamic Notification pushes
             triggerSystemNotification(
                 title = "Uploaded Successfully (Remote Clone)",
-                body = "Processed '${title}' remotely onto Filmshare CDN accounts.",
+                body = "Processed '${title}' remotely onto Flimshare CDN accounts.",
                 videoThumbnail = finalThumb
             )
 
@@ -359,10 +359,10 @@ class FilmshareRepository(
     // --- Internal Notification Engine ---
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Filmshare Push Stream"
+            val name = "Flimshare Push Stream"
             val descriptionText = "Instant notification alerts for subscribed videos & system updates."
             val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel("filmshare_push_channel", name, importance).apply {
+            val channel = NotificationChannel("flimshare_push_channel", name, importance).apply {
                 description = descriptionText
             }
             val notificationManager: NotificationManager =
@@ -392,7 +392,7 @@ class FilmshareRepository(
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val builder = NotificationCompat.Builder(context, "filmshare_push_channel")
+        val builder = NotificationCompat.Builder(context, "flimshare_push_channel")
             .setSmallIcon(android.R.drawable.ic_menu_slideshow)
             .setContentTitle(title)
             .setContentText(body)
@@ -424,14 +424,14 @@ class FilmshareRepository(
             ),
             VideoEntity(
                 id = "demo_video_2",
-                title = "Ad Space: Supercharge Your Tech Skills with Filmshare Premium AD",
+                title = "Ad Space: Supercharge Your Tech Skills with Flimshare Premium AD",
                 category = "Tech",
                 tags = "premium, ad, sponsored",
                 thumbnailUrl = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600",
                 videoUrl = "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
                 channelId = "sponsored_ad_channel",
-                channelName = "Filmshare Ad Engine",
-                channelAvatar = "https://api.dicebear.com/7.x/identicon/png?seed=filmshare",
+                channelName = "Flimshare Ad Engine",
+                channelAvatar = "https://api.dicebear.com/7.x/identicon/png?seed=flimshare",
                 views = 420,
                 likes = 8,
                 dislikes = 1,

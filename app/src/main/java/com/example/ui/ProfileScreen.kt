@@ -34,7 +34,7 @@ import java.util.Locale
 
 @Composable
 fun ProfileScreen(
-    viewModel: FilmshareViewModel,
+    viewModel: FlimshareViewModel,
     modifier: Modifier = Modifier
 ) {
     val activeUser by viewModel.userState.collectAsState()
@@ -359,7 +359,7 @@ fun GoogleOneTapLoginOnboard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Login instantly using Google One-Tap authentication. Filmshare channels persist UID structures safely.",
+                text = "Login instantly using Google One-Tap authentication. Flimshare channels persist UID structures safely.",
                 color = Color.Gray,
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center,
@@ -370,7 +370,7 @@ fun GoogleOneTapLoginOnboard(
 
             // One Tap Google Sign in button simulation
             Card(
-                onClick = { onLoginClick("salman.filmshare@gmail.com", "Salman") },
+                onClick = { onLoginClick("salman.flimshare@gmail.com", "Salman") },
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(24.dp),
                 modifier = Modifier
@@ -416,7 +416,7 @@ fun ChannelSetupForm(
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "📺 Register Filmshare Channel",
+                text = "📺 Register Flimshare Channel",
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold

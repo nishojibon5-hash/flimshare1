@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filmshare Web - Secure OTT Streaming Service</title>
+    <title>Flimshare Web - Secure OTT Streaming Service</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -139,7 +139,7 @@
             const [notifMessage, setNotifMessage] = useState(null);
 
             // Channel profile
-            const [channelName, setChannelName] = useState("My Filmshare Studio");
+            const [channelName, setChannelName] = useState("My Flimshare Studio");
 
             // --- SYNC WITH API SERVER ---
             useEffect(() => {
@@ -258,7 +258,7 @@
                 }
 
                 setIsUploading(true);
-                setUploadProgress("Filmshare CDN সার্ভারে ভিডিও ট্রান্সফার শুরু হচ্ছে...");
+                setUploadProgress("Flimshare CDN সার্ভারে ভিডিও ট্রান্সফার শুরু হচ্ছে...");
 
                 if (uploadTab === "remote") {
                     if (!remoteUrl.trim()) {
@@ -274,7 +274,7 @@
                             const newVideo = {
                                 id: "v_rem_" + Date.now(),
                                 title: uploadTitle,
-                                description: "Filmshare Cloud Stream processing. API Status: OK",
+                                description: "Flimshare Cloud Stream processing. API Status: OK",
                                 videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
                                 imageUrl: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=800",
                                 category: "Movies",
@@ -343,7 +343,7 @@
                                 const newVideo = {
                                     id: "v_loc_" + Date.now(),
                                     title: uploadTitle,
-                                    description: `Filmshare Secure Direct Media: ${directFile.name}`,
+                                    description: `Flimshare Secure Direct Media: ${directFile.name}`,
                                     videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
                                     imageUrl: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800",
                                     category: "Movies",
@@ -416,8 +416,8 @@
                             <div className="flex items-center gap-3">
                                 <span className="material-icons-round text-brandAccent text-3xl">play_circle_filled</span>
                                 <div>
-                                    <h1 className="space-header text-xl font-extrabold tracking-wide text-white">FILMSHARE STUDIO <span className="text-brandAccent text-sm">WEB</span></h1>
-                                    <p className="text-xs text-zinc-400">Filmshare Cloud + Node.JS API Gateway Integration & Dashboard</p>
+                                    <h1 className="space-header text-xl font-extrabold tracking-wide text-white">FLIMSHARE STUDIO <span className="text-brandAccent text-sm">WEB</span></h1>
+                                    <p className="text-xs text-zinc-400">Flimshare Cloud + Node.JS API Gateway Integration & Dashboard</p>
                                 </div>
                             </div>
                             
@@ -437,7 +437,7 @@
                                     <span className="material-icons-round text-brandAccent text-sm mr-1">key_off</span>
                                     <input 
                                         type="text" 
-                                        placeholder="Filmshare Access Key" 
+                                        placeholder="Flimshare Access Key" 
                                         value={doodApiKey}
                                         onChange={(e) => setDoodApiKey(e.target.value)}
                                         className="bg-transparent py-1 text-xs text-white focus:outline-none w-44 placeholder-zinc-500"
@@ -604,7 +604,7 @@
                                     {/* Main Player + description */}
                                     <div className="lg:col-span-2">
                                         <div className="aspect-video bg-black rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl relative">
-                                            {/* Smart check to render real Filmshare embed or fall back into standard HTML5 Player */}
+                                            {/* Smart check to render real Flimshare embed or fall back into standard HTML5 Player */}
                                             {selectedVideo.doodFilecode && selectedVideo.doodFilecode !== "fallback_url" ? (
                                                 <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-950 relative">
                                                     <iframe 
@@ -743,7 +743,7 @@
                                         <span className="material-icons-round text-brandAccent text-3xl">upload_file</span>
                                         <div>
                                             <h2 className="space-header text-xl font-bold text-white uppercase tracking-wider">Stream Upload Engine</h2>
-                                            <p className="text-xs text-zinc-400">Upload direct local clips or import remote links directly into Filmshare CDN</p>
+                                            <p className="text-xs text-zinc-400">Upload direct local clips or import remote links directly into Flimshare CDN</p>
                                         </div>
                                     </div>
 
@@ -795,7 +795,7 @@
                                                         onChange={(e) => setRemoteUrl(e.target.value)}
                                                         className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandAccent placeholder-zinc-700"
                                                     />
-                                                    <p className="text-[10px] text-zinc-500 mt-1 font-semibold">Filmshare allows remote uploading of direct downloadable mp4 paths safely.</p>
+                                                    <p className="text-[10px] text-zinc-500 mt-1 font-semibold">Flimshare allows remote uploading of direct downloadable mp4 paths safely.</p>
                                                 </div>
                                             ) : (
                                                 <div>
@@ -831,7 +831,7 @@
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800 pb-4">
                                         <div>
                                             <h2 className="space-header text-xl font-extrabold tracking-wider text-white uppercase">{channelName} Creator Studio</h2>
-                                            <p className="text-xs text-zinc-400">Analyze views growth, Filmshare referral traffic, and live CPM metrics.</p>
+                                            <p className="text-xs text-zinc-400">Analyze views growth, Flimshare referral traffic, and live CPM metrics.</p>
                                         </div>
                                         <div className="bg-[#1c381c] border border-emerald-800 text-emerald-400 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase">
                                             CPM Status: Active
@@ -999,7 +999,7 @@
 
                     {/* Footer */}
                     <footer className="mt-auto bg-zinc-950 border-t border-zinc-800 py-6 text-center text-xs text-zinc-500 font-semibold uppercase tracking-wider">
-                        Filmshare Hub • Copyright © 2026 • Powered by Google AI Studio
+                        Flimshare Hub • Copyright © 2026 • Powered by Google AI Studio
                     </footer>
 
                 </div>

@@ -1,6 +1,6 @@
-# Filmshare Web & Backend Deployment Guide
+# Flimshare Web & Backend Deployment Guide
 
-This guide helps you deploy **Filmshare Web Client** and the custom **Node.js Backend Server** in minutes with zero friction.
+This guide helps you deploy **Flimshare Web Client** and the custom **Node.js Backend Server** in minutes with zero friction.
 
 ---
 
@@ -15,7 +15,7 @@ Netlify is perfect for hosting static frontend assets. Since the webapp leverage
    - **Base directory**: `web-app`
    - **Build command**: *Leave empty*
    - **Publish directory**: `.` (which points directly to the `index.html` inside `web-app/`)
-4. Click **Deploy Site**. Your Filmshare Web Client is instantly online!
+4. Click **Deploy Site**. Your Flimshare Web Client is instantly online!
 
 ---
 
@@ -40,7 +40,7 @@ The backend server is built using lightweight, high-speed Express.js. It manages
 
 ## 3. Connecting Front-end Web App with Your Backend Server 🔗
 
-1. Once your Render Web Service is running, copy its URL output (e.g. `https://filmshare-backend.onrender.com`).
+1. Once your Render Web Service is running, copy its URL output (e.g. `https://flimshare-backend.onrender.com`).
 2. Open your deployed Netlify Web App.
 3. In the top bar, paste your Render backend URL into the **API Server** input field and click **Sync**.
 4. The web client will instantly establish double-sided handshakes with your live server, enabling real-time sync for chat, comments, creator metrics, and uploads!

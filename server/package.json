@@ -1,7 +1,7 @@
 {
-  "name": "filmshare-backend-server",
+  "name": "flimshare-backend-server",
   "version": "1.0.0",
-  "description": "High-fidelity proxy and synchronization backend for Filmshare Mobile + Web App",
+  "description": "High-fidelity proxy and synchronization backend for Flimshare Mobile + Web App",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

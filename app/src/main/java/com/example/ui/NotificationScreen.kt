@@ -31,7 +31,7 @@ import com.example.data.NotificationEntity
 
 @Composable
 fun NotificationScreen(
-    viewModel: FilmshareViewModel,
+    viewModel: FlimshareViewModel,
     modifier: Modifier = Modifier
 ) {
     val items by viewModel.notificationsState.collectAsState()

@@ -31,7 +31,7 @@ sealed class Screen(val title: String, val iconFilled: ImageVector, val iconOutl
 
 @Composable
 fun AppNavigation(
-    viewModel: FilmshareViewModel,
+    viewModel: FlimshareViewModel,
     modifier: Modifier = Modifier
 ) {
     var activeTab by remember { mutableStateOf<Screen>(Screen.Home) }

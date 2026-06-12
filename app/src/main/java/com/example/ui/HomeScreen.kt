@@ -37,7 +37,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(
-    viewModel: FilmshareViewModel,
+    viewModel: FlimshareViewModel,
     onVideoClick: (VideoEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -45,7 +45,7 @@ fun HomeScreen(
     val activeCategory by viewModel.selectedCategory.collectAsState()
     
     val categories = listOf("All", "Anime", "Movies", "Tech", "Comedy", "Music")
-
+ 
     Scaffold(
         containerColor = Color(0xFF0C0C0E),
         topBar = {
@@ -63,7 +63,7 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Filmshare",
+                        text = "Flimshare",
                         color = Color(0xFFFFD600), // Pure Yellow
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Black,
@@ -166,7 +166,7 @@ fun FeaturedCarousel() {
     val carouselDetails = listOf(
         Pair("Featured Event", "Unlock Cinematic Streaming Across All Domains"),
         Pair("Bilibili Collab", "Exclusive Anime Streaming Week - Daily Drops"),
-        Pair("Filmshare Monetize", "Empowering Independent Creators globally")
+        Pair("Flimshare Monetize", "Empowering Independent Creators globally")
     )
 
     val pagerState = rememberPagerState(pageCount = { carouselImages.size })

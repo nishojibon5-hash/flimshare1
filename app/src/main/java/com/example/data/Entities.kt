@@ -27,7 +27,7 @@ data class ChannelEntity(
 
 @Entity(tableName = "videos")
 data class VideoEntity(
-    @PrimaryKey val id: String, // Youtube video ID or remote URL / Filmshare file code
+    @PrimaryKey val id: String, // Youtube video ID or remote URL / Flimshare file code
     val title: String,
     val category: String, // e.g., "Anime", "Movies", "Tech", "Comedy", "Music"
     val tags: String, // comma separated

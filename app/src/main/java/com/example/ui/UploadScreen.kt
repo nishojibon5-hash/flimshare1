@@ -29,7 +29,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UploadScreen(
-    viewModel: FilmshareViewModel,
+    viewModel: FlimshareViewModel,
     onUploadSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -121,7 +121,7 @@ fun UploadScreen(
                     Icon(Icons.Filled.VpnKey, contentDescription = "API key icon", tint = Color(0xFFFFD600), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Filmshare CDN Access Key Configuration",
+                        text = "Flimshare CDN Access Key Configuration",
                         color = Color.White,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -131,7 +131,7 @@ fun UploadScreen(
                 OutlinedTextField(
                     value = manualApiKey,
                     onValueChange = { manualApiKey = it },
-                    placeholder = { Text("Enter Filmshare Server API Key (or empty for sandbox mode)", color = Color.Gray, fontSize = 11.sp) },
+                    placeholder = { Text("Enter Flimshare Server API Key (or empty for sandbox mode)", color = Color.Gray, fontSize = 11.sp) },
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF050508),
@@ -241,7 +241,7 @@ fun UploadScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = if (progress == 0) "Publishing & pushing to Filmshare Secure Servers..." else "Background processing: $progress%",
+                        text = if (progress == 0) "Publishing & pushing to Flimshare Secure Servers..." else "Background processing: $progress%",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
